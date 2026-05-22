@@ -1,38 +1,30 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { toSlug } from '../common/utils/slug.util';
 import { BusinessesService } from '../businesses/businesses.service';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
-import { Product, ProductDocument } from './schemas/product.schema';
+import { toSlug } from '../common/utils/slug.util';
+import { CreateServiceDto } from './dto/create-service.dto';
+import { UpdateServiceDto } from './dto/update-service.dto';
+import { Service, ServiceDocument } from './schemas/service.schema';
 
 @Injectable()
-export class ProductsService {
+export class ServicesService {
   constructor(
-    @InjectModel(Product.name) private productModel: Model<ProductDocument>,
+    @InjectModel(Service.name) private serviceModel: Model<ServiceDocument>,
     private readonly businessesService: BusinessesService,
   ) {}
 
-  async findAll(): Promise<Product[]> {
-    return this.productModel.find().exec();
-  }
-
-  findByBusiness(businessId: string | Types.ObjectId) {
-    return this.productModel
-      .find({ businessId })
+  async findByOwner(ownerId: string | Types.ObjectId) {
+    const business = await this.businessesService.findByOwner(ownerId);
+    return this.serviceModel
+      .find({ businessId: business._id })
       .sort({ createdAt: -1 })
       .exec();
   }
 
-  async findByOwner(ownerId: string | Types.ObjectId) {
-    const business = await this.businessesService.findByOwner(ownerId);
-    return this.findByBusiness(business._id);
-  }
-
   async findPublicByBusinessSlug(slug: string) {
     const business = await this.businessesService.findPublicBySlug(slug);
-    return this.productModel
+    return this.serviceModel
       .find({ businessId: business._id, status: 'active' })
       .sort({ createdAt: -1 })
       .exec();
@@ -40,24 +32,23 @@ export class ProductsService {
 
   async createForOwner(
     ownerId: string | Types.ObjectId,
-    data: CreateProductDto,
+    data: CreateServiceDto,
   ) {
     const business = await this.businessesService.findByOwner(ownerId);
-    const product = await this.productModel.create({
+    return this.serviceModel.create({
       ...data,
       businessId: business._id,
       slug: data.slug ? toSlug(data.slug) : toSlug(data.name),
     });
-    return product;
   }
 
   async updateForOwner(
     ownerId: string | Types.ObjectId,
     id: string,
-    data: UpdateProductDto,
+    data: UpdateServiceDto,
   ) {
     const business = await this.businessesService.findByOwner(ownerId);
-    const product = await this.productModel
+    const service = await this.serviceModel
       .findOneAndUpdate(
         { _id: id, businessId: business._id },
         {
@@ -67,19 +58,19 @@ export class ProductsService {
         { new: true },
       )
       .exec();
-    if (!product) {
-      throw new NotFoundException('Product not found');
+    if (!service) {
+      throw new NotFoundException('Service not found');
     }
-    return product;
+    return service;
   }
 
   async deleteForOwner(ownerId: string | Types.ObjectId, id: string) {
     const business = await this.businessesService.findByOwner(ownerId);
-    const product = await this.productModel
+    const service = await this.serviceModel
       .findOneAndDelete({ _id: id, businessId: business._id })
       .exec();
-    if (!product) {
-      throw new NotFoundException('Product not found');
+    if (!service) {
+      throw new NotFoundException('Service not found');
     }
     return { deleted: true };
   }
