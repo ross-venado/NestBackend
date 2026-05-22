@@ -6,6 +6,8 @@ import {
   IsString,
   MinLength,
 } from 'class-validator';
+import { AdminRole } from '../../common/enums/admin-role.enum';
+import { BusinessRole } from '../../common/enums/business-role.enum';
 import { UserRole } from '../../common/enums/user-role.enum';
 
 export class CreateUserDto {
@@ -26,4 +28,14 @@ export class CreateUserDto {
   @IsOptional()
   @IsEnum(UserRole)
   role?: UserRole;
+
+  @ApiPropertyOptional({ enum: AdminRole, example: AdminRole.Operations })
+  @IsOptional()
+  @IsEnum(AdminRole)
+  adminRole?: AdminRole;
+
+  @ApiPropertyOptional({ enum: BusinessRole, example: BusinessRole.Owner })
+  @IsOptional()
+  @IsEnum(BusinessRole)
+  businessRole?: BusinessRole;
 }

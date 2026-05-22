@@ -2,6 +2,10 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createHmac, randomBytes, timingSafeEqual } from 'crypto';
 import { UsersService } from '../users/users.service';
+import { AdminRole } from '../common/enums/admin-role.enum';
+import { BusinessRole } from '../common/enums/business-role.enum';
+import { UserRole } from '../common/enums/user-role.enum';
+import { AdminRegisterDto } from './dto/admin-register.dto';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 
@@ -9,6 +13,8 @@ type TokenPayload = {
   sub: string;
   email: string;
   role: string;
+  adminRole?: string;
+  businessRole?: string;
   nonce: string;
 };
 
@@ -20,13 +26,39 @@ export class AuthService {
   ) {}
 
   async register(data: RegisterDto) {
-    const user = await this.usersService.create(data);
+    const user = await this.usersService.create({
+      ...data,
+      role: UserRole.BusinessOwner,
+      businessRole: BusinessRole.Owner,
+    });
+    return this.buildSession(user);
+  }
+
+  async registerBackofficeAdmin(data: AdminRegisterDto) {
+    const expectedKey = this.configService.get<string>('ADMIN_SETUP_KEY');
+    if (!expectedKey || data.setupKey !== expectedKey) {
+      throw new UnauthorizedException('Invalid admin setup key');
+    }
+
+    const user = await this.usersService.create({
+      name: data.name,
+      email: data.email,
+      password: data.password,
+      role: UserRole.Admin,
+      adminRole: data.adminRole || AdminRole.Operations,
+    });
+    return this.buildSession(user);
+  }
+
+  private buildSession(user: Awaited<ReturnType<UsersService['findById']>>) {
     return {
       user: this.usersService.sanitize(user),
       token: this.signToken({
         sub: user._id.toString(),
         email: user.email,
         role: user.role,
+        adminRole: user.adminRole,
+        businessRole: user.businessRole,
         nonce: randomBytes(8).toString('hex'),
       }),
     };
@@ -38,15 +70,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    return {
-      user: this.usersService.sanitize(user),
-      token: this.signToken({
-        sub: user._id.toString(),
-        email: user.email,
-        role: user.role,
-        nonce: randomBytes(8).toString('hex'),
-      }),
-    };
+    return this.buildSession(user);
   }
 
   verifyToken(token: string): TokenPayload {

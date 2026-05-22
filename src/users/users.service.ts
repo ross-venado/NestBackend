@@ -6,6 +6,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { createHash, pbkdf2Sync, randomBytes } from 'crypto';
+import { BusinessRole } from '../common/enums/business-role.enum';
 import { User, UserDocument } from './schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserRole } from '../common/enums/user-role.enum';
@@ -29,6 +30,11 @@ export class UsersService {
       passwordHash,
       passwordSalt,
       role: data.role || UserRole.BusinessOwner,
+      adminRole: data.adminRole,
+      businessRole:
+        data.role === UserRole.Admin
+          ? undefined
+          : data.businessRole || BusinessRole.Owner,
     });
   }
 
@@ -56,6 +62,8 @@ export class UsersService {
       name: user.name,
       email: user.email,
       role: user.role,
+      adminRole: user.adminRole,
+      businessRole: user.businessRole,
     };
   }
 

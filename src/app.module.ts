@@ -6,6 +6,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { BusinessesModule } from './businesses/businesses.module';
 import { BusinessCategoriesModule } from './business-categories/business-categories.module';
+import { BusinessCatalogCategoriesModule } from './business-catalog-categories/business-catalog-categories.module';
 import { ServicesModule } from './services/services.module';
 import { SubscriptionPlansModule } from './subscription-plans/subscription-plans.module';
 import { QrModule } from './qr/qr.module';
@@ -25,6 +26,7 @@ import { PublicModule } from './public/public.module';
     AuthModule,
     BusinessesModule,
     BusinessCategoriesModule,
+    BusinessCatalogCategoriesModule,
     ProductsModule,
     ServicesModule,
     SubscriptionPlansModule,
