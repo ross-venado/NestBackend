@@ -1,5 +1,5 @@
-import { ApiProperty, PickType } from '@nestjs/swagger';
-import { IsEnum, IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
 import { AdminRole } from '../../common/enums/admin-role.enum';
 import { CreateUserDto } from '../../users/dto/create-user.dto';
 
@@ -12,7 +12,8 @@ export class AdminRegisterDto extends PickType(CreateUserDto, [
   @IsString()
   setupKey: string;
 
-  @ApiProperty({ enum: AdminRole, example: AdminRole.Operations })
+  @ApiPropertyOptional({ enum: AdminRole, example: AdminRole.Operations })
+  @IsOptional()
   @IsEnum(AdminRole)
-  adminRole: AdminRole;
+  adminRole?: AdminRole;
 }

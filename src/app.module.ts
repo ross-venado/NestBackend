@@ -12,6 +12,8 @@ import { SubscriptionPlansModule } from './subscription-plans/subscription-plans
 import { QrModule } from './qr/qr.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { PublicModule } from './public/public.module';
+import { RestaurantTablesModule } from './restaurant-tables/restaurant-tables.module';
+import { RestaurantOrdersModule } from './restaurant-orders/restaurant-orders.module';
 
 @Module({
   imports: [
@@ -33,6 +35,8 @@ import { PublicModule } from './public/public.module';
     QrModule,
     AnalyticsModule,
     PublicModule,
+    RestaurantTablesModule,
+    RestaurantOrdersModule,
   ],
 })
 export class AppModule {}

@@ -1,5 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsOptional } from 'class-validator';
+import { IsArray, IsEnum, IsOptional } from 'class-validator';
+import { BusinessModule } from '../../common/enums/business-module.enum';
 import { BusinessStatus } from '../../common/enums/business-status.enum';
 import { PlanCode } from '../../common/enums/plan-code.enum';
 
@@ -13,4 +14,14 @@ export class UpdateBusinessStatusDto {
   @IsOptional()
   @IsEnum(PlanCode)
   plan?: PlanCode;
+
+  @ApiPropertyOptional({
+    enum: BusinessModule,
+    isArray: true,
+    example: [BusinessModule.Marketplace, BusinessModule.Restaurant],
+  })
+  @IsOptional()
+  @IsArray()
+  @IsEnum(BusinessModule, { each: true })
+  modules?: BusinessModule[];
 }
