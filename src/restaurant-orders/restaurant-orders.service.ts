@@ -7,6 +7,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Product, ProductDocument } from '../products/schemas/product.schema';
 import { RestaurantAccessService } from '../restaurant-common/restaurant-access.service';
+import { RestaurantTableStatus } from '../common/enums/restaurant-table-status.enum';
 import { RestaurantTableDocument } from '../restaurant-tables/schemas/restaurant-table.schema';
 import { RestaurantTablesService } from '../restaurant-tables/restaurant-tables.service';
 import { RestaurantOrderStatus } from '../common/enums/restaurant-order-status.enum';
@@ -99,6 +100,7 @@ export class RestaurantOrdersService {
       .populate('tableId')
       .exec();
     if (!order) throw new NotFoundException('Restaurant order not found');
+    await this.syncTableStatus(business._id, this.toObjectId(order.tableId));
     return order;
   }
 
@@ -109,6 +111,7 @@ export class RestaurantOrdersService {
       .findOneAndDelete({ _id: id, businessId: business._id })
       .exec();
     if (!order) throw new NotFoundException('Restaurant order not found');
+    await this.syncTableStatus(business._id, this.toObjectId(order.tableId));
     return { deleted: true };
   }
 
@@ -157,7 +160,7 @@ export class RestaurantOrdersService {
     const total = items.reduce((sum, item) => sum + item.subtotal, 0);
     const orderNumber = await this.nextOrderNumber(businessId);
 
-    return this.orderModel.create({
+    const order = await this.orderModel.create({
       businessId,
       tableId: table._id,
       orderNumber,
@@ -169,6 +172,8 @@ export class RestaurantOrdersService {
       notes: data.notes,
       createdBy,
     });
+    await this.syncTableStatus(businessId, table._id);
+    return order;
   }
 
   private async nextOrderNumber(businessId: Types.ObjectId) {
@@ -178,5 +183,56 @@ export class RestaurantOrdersService {
       .select('orderNumber')
       .exec();
     return (lastOrder?.orderNumber || 0) + 1;
+  }
+
+  private async syncTableStatus(
+    businessId: Types.ObjectId,
+    tableId: Types.ObjectId,
+  ) {
+    const activeOrder = await this.orderModel
+      .findOne({
+        businessId,
+        tableId,
+        status: {
+          $nin: [
+            RestaurantOrderStatus.Delivered,
+            RestaurantOrderStatus.Paid,
+            RestaurantOrderStatus.Cancelled,
+          ],
+        },
+      })
+      .sort({ updatedAt: -1 })
+      .select('status')
+      .exec();
+
+    const tableStatus =
+      activeOrder?.status === RestaurantOrderStatus.WaitingPayment
+        ? RestaurantTableStatus.WaitingPayment
+        : activeOrder
+          ? RestaurantTableStatus.Occupied
+          : RestaurantTableStatus.Free;
+
+    await this.restaurantTablesService.updateStatusForBusiness(
+      businessId,
+      tableId,
+      tableStatus,
+    );
+  }
+
+  private toObjectId(value: unknown) {
+    if (value instanceof Types.ObjectId) {
+      return value;
+    }
+
+    if (
+      value &&
+      typeof value === 'object' &&
+      '_id' in value &&
+      value._id instanceof Types.ObjectId
+    ) {
+      return value._id;
+    }
+
+    return new Types.ObjectId(String(value));
   }
 }

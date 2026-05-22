@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { RestaurantTableStatus } from '../common/enums/restaurant-table-status.enum';
 import { RestaurantAccessService } from '../restaurant-common/restaurant-access.service';
 import { toSlug } from '../common/utils/slug.util';
 import { CreateRestaurantTableDto } from './dto/create-restaurant-table.dto';
@@ -82,6 +83,16 @@ export class RestaurantTablesService {
       .exec();
     if (!table) throw new NotFoundException('Restaurant table not found');
     return { deleted: true };
+  }
+
+  async updateStatusForBusiness(
+    businessId: Types.ObjectId,
+    tableId: Types.ObjectId,
+    status: RestaurantTableStatus,
+  ) {
+    await this.tableModel
+      .findOneAndUpdate({ _id: tableId, businessId }, { status })
+      .exec();
   }
 
   async findPublicByBusinessAndQrSlug(businessSlug: string, qrSlug: string) {
