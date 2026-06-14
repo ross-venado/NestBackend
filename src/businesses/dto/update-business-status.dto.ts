@@ -18,7 +18,7 @@ export class UpdateBusinessStatusDto {
   @ApiPropertyOptional({
     enum: BusinessModule,
     isArray: true,
-    example: [BusinessModule.Marketplace, BusinessModule.Restaurant],
+    example: [BusinessModule.Marketplace, BusinessModule.Inventory],
   })
   @IsOptional()
   @IsArray()

@@ -19,6 +19,7 @@ const categories = [
   'Belleza y citas',
   'Servicios profesionales',
   'Tecnología',
+  'Tiendas',
 ];
 
 const plans = [
@@ -32,7 +33,7 @@ const plans = [
   {
     code: PlanCode.Basic,
     name: 'Basic',
-    price: 99,
+    price: 0,
     productLimit: 10,
     features: ['QR', 'ubicación', 'WhatsApp', '1 promoción futura'],
   },
@@ -42,9 +43,9 @@ const plans = [
     price: 199,
     productLimit: 30,
     features: [
-      'categorías',
-      'estadísticas básicas futuras',
-      '3 promociones futuras',
+      'módulo adicional por nicho',
+      'estadísticas básicas',
+      'QR y acciones para compartir',
     ],
   },
   {
@@ -52,7 +53,7 @@ const plans = [
     name: 'Pro',
     price: 349,
     productLimit: 100,
-    features: ['destacado futuro', 'módulos avanzados', 'soporte prioritario'],
+    features: ['módulos avanzados', 'soporte prioritario', 'catalogo ampliado'],
   },
 ];
 

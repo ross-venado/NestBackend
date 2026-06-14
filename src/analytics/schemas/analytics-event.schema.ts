@@ -16,7 +16,13 @@ export class AnalyticsEvent {
 
   @Prop({
     required: true,
-    enum: ['business_view', 'whatsapp_click', 'product_view', 'service_view'],
+    enum: [
+      'business_view',
+      'whatsapp_click',
+      'product_view',
+      'service_view',
+      'order_started',
+    ],
     index: true,
   })
   type: string;

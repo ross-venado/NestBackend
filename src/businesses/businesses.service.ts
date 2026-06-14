@@ -9,6 +9,49 @@ import { Business, BusinessDocument } from './schemas/business.schema';
 import { UpdateBusinessDto } from './dto/update-business.dto';
 import { UpdateBusinessStatusDto } from './dto/update-business-status.dto';
 
+const premiumPlans = new Set<PlanCode>([PlanCode.Plus, PlanCode.Pro]);
+
+const recommendedModulesByCategorySlug: Record<string, BusinessModule[]> = {
+  'comida-y-restaurantes': [BusinessModule.Restaurant],
+  tiendas: [BusinessModule.Inventory, BusinessModule.Quotes],
+  tecnologia: [BusinessModule.Inventory, BusinessModule.Quotes],
+  'repuestos-y-accesorios': [BusinessModule.Inventory, BusinessModule.Quotes],
+  'importadores-de-carros': [BusinessModule.Automotive],
+  'talleres-mecanicos': [BusinessModule.Workshop],
+  'polarizado-y-detailing': [BusinessModule.Workshop],
+  'pvc-vidrio-y-aluminio': [BusinessModule.Quotes],
+  herreria: [BusinessModule.Quotes],
+  'belleza-y-citas': [BusinessModule.Appointments],
+  'servicios-profesionales': [
+    BusinessModule.Appointments,
+    BusinessModule.Quotes,
+  ],
+};
+
+function categorySlugFromBusiness(business: BusinessDocument) {
+  const category = business.categoryId as unknown as { slug?: string } | undefined;
+  return category?.slug || '';
+}
+
+function modulesForPlanAndCategory(
+  plan: PlanCode,
+  categorySlug: string,
+  currentModules: BusinessModule[] = [],
+) {
+  const modules = new Set<BusinessModule>([
+    BusinessModule.Marketplace,
+    ...currentModules,
+  ]);
+
+  if (premiumPlans.has(plan)) {
+    for (const moduleCode of recommendedModulesByCategorySlug[categorySlug] || []) {
+      modules.add(moduleCode);
+    }
+  }
+
+  return Array.from(modules);
+}
+
 @Injectable()
 export class BusinessesService {
   constructor(
@@ -92,12 +135,34 @@ export class BusinessesService {
   }
 
   async updateStatus(id: string, data: UpdateBusinessStatusDto) {
-    const business = await this.businessModel
-      .findByIdAndUpdate(id, data, { new: true })
-      .exec();
+    const business = await this.businessModel.findById(id).populate('categoryId').exec();
     if (!business) {
       throw new NotFoundException('Business not found');
     }
-    return business;
+
+    const nextPlan = data.plan || business.plan;
+    const nextModules =
+      data.modules ||
+      modulesForPlanAndCategory(
+        nextPlan,
+        categorySlugFromBusiness(business),
+        business.modules,
+      );
+
+    const updatedBusiness = await this.businessModel
+      .findByIdAndUpdate(
+        id,
+        {
+          ...data,
+          plan: nextPlan,
+          modules: nextModules,
+        },
+        { new: true },
+      )
+      .exec();
+    if (!updatedBusiness) {
+      throw new NotFoundException('Business not found');
+    }
+    return updatedBusiness;
   }
 }

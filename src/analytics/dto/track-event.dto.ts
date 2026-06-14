@@ -3,10 +3,22 @@ import { IsIn, IsObject, IsOptional } from 'class-validator';
 
 export class TrackEventDto {
   @ApiProperty({
-    enum: ['business_view', 'whatsapp_click', 'product_view', 'service_view'],
+    enum: [
+      'business_view',
+      'whatsapp_click',
+      'product_view',
+      'service_view',
+      'order_started',
+    ],
     example: 'whatsapp_click',
   })
-  @IsIn(['business_view', 'whatsapp_click', 'product_view', 'service_view'])
+  @IsIn([
+    'business_view',
+    'whatsapp_click',
+    'product_view',
+    'service_view',
+    'order_started',
+  ])
   type: string;
 
   @ApiPropertyOptional({
