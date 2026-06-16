@@ -14,6 +14,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
 import { PublicModule } from './public/public.module';
 import { RestaurantTablesModule } from './restaurant-tables/restaurant-tables.module';
 import { RestaurantOrdersModule } from './restaurant-orders/restaurant-orders.module';
+import { LiveSalesModule } from './live-sales/live-sales.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { RestaurantOrdersModule } from './restaurant-orders/restaurant-orders.mo
     PublicModule,
     RestaurantTablesModule,
     RestaurantOrdersModule,
+    LiveSalesModule,
   ],
 })
 export class AppModule {}

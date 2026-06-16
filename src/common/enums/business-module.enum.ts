@@ -6,4 +6,5 @@ export enum BusinessModule {
   Workshop = 'workshop',
   Quotes = 'quotes',
   Appointments = 'appointments',
+  LiveSales = 'live_sales',
 }

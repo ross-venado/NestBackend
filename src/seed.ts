@@ -44,6 +44,7 @@ const plans = [
     productLimit: 30,
     features: [
       'módulo adicional por nicho',
+      'venta en vivo con historial',
       'estadísticas básicas',
       'QR y acciones para compartir',
     ],
@@ -53,7 +54,12 @@ const plans = [
     name: 'Pro',
     price: 349,
     productLimit: 100,
-    features: ['módulos avanzados', 'soporte prioritario', 'catalogo ampliado'],
+    features: [
+      'módulos avanzados',
+      'venta en vivo avanzada',
+      'soporte prioritario',
+      'catalogo ampliado',
+    ],
   },
 ];
 

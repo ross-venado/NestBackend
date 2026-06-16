@@ -12,19 +12,24 @@ import { UpdateBusinessStatusDto } from './dto/update-business-status.dto';
 const premiumPlans = new Set<PlanCode>([PlanCode.Plus, PlanCode.Pro]);
 
 const recommendedModulesByCategorySlug: Record<string, BusinessModule[]> = {
-  'comida-y-restaurantes': [BusinessModule.Restaurant],
-  tiendas: [BusinessModule.Inventory, BusinessModule.Quotes],
-  tecnologia: [BusinessModule.Inventory, BusinessModule.Quotes],
-  'repuestos-y-accesorios': [BusinessModule.Inventory, BusinessModule.Quotes],
-  'importadores-de-carros': [BusinessModule.Automotive],
-  'talleres-mecanicos': [BusinessModule.Workshop],
-  'polarizado-y-detailing': [BusinessModule.Workshop],
-  'pvc-vidrio-y-aluminio': [BusinessModule.Quotes],
-  herreria: [BusinessModule.Quotes],
-  'belleza-y-citas': [BusinessModule.Appointments],
+  'comida-y-restaurantes': [BusinessModule.Restaurant, BusinessModule.LiveSales],
+  tiendas: [BusinessModule.Inventory, BusinessModule.Quotes, BusinessModule.LiveSales],
+  tecnologia: [BusinessModule.Inventory, BusinessModule.Quotes, BusinessModule.LiveSales],
+  'repuestos-y-accesorios': [
+    BusinessModule.Inventory,
+    BusinessModule.Quotes,
+    BusinessModule.LiveSales,
+  ],
+  'importadores-de-carros': [BusinessModule.Automotive, BusinessModule.LiveSales],
+  'talleres-mecanicos': [BusinessModule.Workshop, BusinessModule.LiveSales],
+  'polarizado-y-detailing': [BusinessModule.Workshop, BusinessModule.LiveSales],
+  'pvc-vidrio-y-aluminio': [BusinessModule.Quotes, BusinessModule.LiveSales],
+  herreria: [BusinessModule.Quotes, BusinessModule.LiveSales],
+  'belleza-y-citas': [BusinessModule.Appointments, BusinessModule.LiveSales],
   'servicios-profesionales': [
     BusinessModule.Appointments,
     BusinessModule.Quotes,
+    BusinessModule.LiveSales,
   ],
 };
 
